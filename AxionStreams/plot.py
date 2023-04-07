@@ -11,7 +11,7 @@ from galpy import potential,df
 from galpy.orbit import Orbit
 from astropy import units as u
 
-plt.rcParams['axes.linewidth'] = 2.5
+plt.rcParams['axes.linewidth'] = 1.5
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
