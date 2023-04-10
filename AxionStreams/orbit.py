@@ -63,3 +63,27 @@ def get_profile(nsamples,rmax=10000,ro=8):
     dr = rb[1]-rb[0]
     rho = (1/(4*np.pi*rc**2))*(dP/dr)
     return rc, rho
+
+
+def disk_encounters(orbits,maxrad=0):
+    '''
+    Computes the number of disk encounters (crossing z=0) for each orbit, discards encounters with radii larger 
+    than maxrad
+    Input: 
+        - Orbits coordinates from orbit_coordinates function with shape (nframes,3,nsamples)
+        - Maximum radius to consider the disk encounter in kpc
+    Output:
+        - List with number of encounters for each orbit, shape (nsamples)
+    '''
+    enc_li = []
+    for i in range(orbits.shape[-1]):
+        z_path = orbits[:,:,i][:,2]
+        R_path  = np.sqrt(z_path**2+(orbits[:,:,i][:,1])**2+(orbits[:,:,i][:,0])**2)
+        enc_array = np.abs(np.diff(np.sign(z_path)))
+        if maxrad > 0:
+            mask = np.argwhere(R_path <= maxrad)
+            enc_array = enc_array[mask-1]
+        enc  = int(enc_array.sum()/2)
+        enc_li.append(enc)
+    return np.array(enc_li)
+
