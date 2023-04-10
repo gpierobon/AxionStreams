@@ -25,7 +25,7 @@ def orbit_coordinates(samples,T_Gyr,nframes,ctype='Cartesian'):
         vR  = samples[i].vR()
         vT  = samples[i].vT()
         vz  = samples[i].vz()
-        phi = samples[i].phi()
+        phi = samples[i].phi()*180/np.pi
         o = Orbit(vxvv=[R*kpc,vR*kms,vT*kms,z*kpc,vz*kms,phi*deg])
         o.integrate(ts,potential.MWPotential2014)
         if ctype == 'Cartesian':
