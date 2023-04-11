@@ -9,7 +9,7 @@ deg = u.deg
 Gyr = u.Gyr
 
 def orbit_sampling(N_samples):
-    pot  = potential.NFWPotential()
+    pot  = potential.NFWPotential(a=19.4*kpc)
     distr_funct = df.isotropicNFWdf(pot=pot,rmax=200*kpc,vo=230*kms,ro=8.2*kpc)
     samples = distr_funct.sample(n=N_samples,return_orbit=True)
     return samples 
@@ -36,7 +36,7 @@ def orbit_coordinates(samples,T_Gyr,nframes,ctype='Cartesian'):
             print("Type not valid!")
     return Coords
 
-def get_profile(nsamples,rmax=10000,ro=8):
+def get_profile(nsamples,rmax=200):
     '''
 
     Reproduces the density profile from the sampled miniclusters
@@ -46,15 +46,14 @@ def get_profile(nsamples,rmax=10000,ro=8):
     Input: 
         - nsamples: the sample array
         - rmax: maximum radius in kpc  
-        - ro: scale radius in kpc
 
     Output: 
        - r: radial coordinates in kpc
        - rho: density profiles in a.u.
     '''
     N_samples = int(nsamples)
-    pot  = potential.NFWPotential()
-    distr_funct = df.isotropicNFWdf(pot=pot,rmax=rmax*kpc,ro=ro*kpc)#,rmax=200*kpc,vo=230*kms)#,ro=5*kpc)
+    pot  = potential.NFWPotential(a=19.4*kpc)
+    distr_funct = df.isotropicNFWdf(pot=pot,rmax=rmax*kpc,ro=8.2*kpc,vo=230*kms)
     samples = distr_funct.sample(n=N_samples,return_orbit=False)
     R_i = samples[0]
     rmax = np.max(R_i)
