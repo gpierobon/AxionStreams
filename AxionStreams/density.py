@@ -42,7 +42,7 @@ def sample_from_stellar_density(ts,Orbits,j,samplesize=100):
     '''
     rho = stellar_density(Orbits[:,0,j],Orbits[:,1,j],Orbits[:,2,j])
     sorted_indices = np.argsort(ts)
-    sampled_ts = np.random.choice(ts, size=samplesize, replace=False)
+    sampled_ts = np.random.choice(ts, p=rho/np.sum(rho), size=samplesize, replace=False)
     sampled_indices = np.searchsorted(ts[sorted_indices], sampled_ts)
     sorted_sampled_indices = sorted_indices[sampled_indices]
     sampled_rho = rho[sorted_sampled_indices]
