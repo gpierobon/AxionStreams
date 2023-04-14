@@ -6,6 +6,8 @@ pictures/
 
 notes.txt
 
+test_plots/
+
 orbit_data/orbits_2_*
 orbit_data/orbits_3_*
 orbit_data/orbits_4_*
