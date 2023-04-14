@@ -33,7 +33,7 @@ print("Creating file: ",path+'/orbit_data/'+fname)
 def dump_orbits(fname,N,T_Gyr,nframes):
 
     samples = orb.orbit_sampling(N,rmin=0.0,rmax=200)
-    ts = np.linspace(0.0,T_Gyr,nframes)
+    ts = np.linspace(0.0,T_Gyr*u.Gyr,nframes)
 
     with h5.File(path+'/orbit_data/'+fname,'w') as f:
         f.create_dataset('TimeSeries',data=ts)
