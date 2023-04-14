@@ -1,8 +1,9 @@
 __pycache__/
 .DS_Store
 .ipynb_checkpoints/
-3D/
-*.csv
-*.HEIC
-*.mp4
-Orbit_Integration_Example.ipynb
+movies/
+pictures/
+
+scripts/movie.sh
+scripts/orbit_movie.py
+scripts/rename.py
