@@ -45,6 +45,26 @@ def plot_settings(ax,xlim,ylim,zlim):
     ax.zaxis._axinfo['tick']['outward_factor'] = 0
     ax.grid(linestyle='--', linewidth=0.5)
 
+
+def MyGrid(ax):
+    ax.set_axis_off()
+    ax.set_facecolor('black')
+    xline = np.array([(0,0,0),(-100,0,0)])
+    yline = np.array([(0,0,0),(0,100,0)])
+    zline = np.array([(0,0,0),(0,0,100)])
+    xline = Line3D(xline[:,0], xline[:,1],xline[:,2],color='w',alpha=0.15)
+    yline = Line3D(yline[:,0], yline[:,1],yline[:,2],color='w',alpha=0.15)
+    zline = Line3D(zline[:,0], zline[:,1],zline[:,2],color='w',alpha=0.15)
+    ax.add_line(xline)
+    ax.add_line(yline)
+    ax.add_line(zline)
+    theta = np.linspace(0, 2 * np.pi, 201)
+    for i in range(0,100,10):
+        x = i*kpc*np.cos(theta)
+        y = i*kpc*np.sin(theta)
+        ax.plot(x,y,0,c='w',alpha=0.15)
+    
+
 def plot_Sun(ax,label=False):
     Sun = np.array([8.122,0.0,0.005])
     o_sun1 = Orbit(vxvv=[Sun[0]*kpc,0.0*kms,232.0*kms,0.0*kpc,0.0*kms,0.0*deg]).flip()
