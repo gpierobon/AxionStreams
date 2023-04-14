@@ -67,7 +67,7 @@ class Stream():
         finterp = scp.interpolate.InterpolatedUnivariateSpline(ts, inte, k=1)
         xx = np.linspace(ts[0], ts[-1], 5*len(ts))
         qq = [finterp.integral(0, t) for t in xx]
-        self.N_encounters  = int(qq[-1]
+        self.N_encounters  = int(round(qq[-1]))
         # Add them to a time series 
         # self.t_encounters = 
         del xx, qq, star_density
