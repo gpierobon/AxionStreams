@@ -6,6 +6,10 @@ pictures/
 
 notes.txt
 
+orbit_data/orbits_2_*
+orbit_data/orbits_3_*
+orbit_data/orbits_4_*
+
 scripts/movie.sh
 scripts/orbit_movie.py
 scripts/rename.py

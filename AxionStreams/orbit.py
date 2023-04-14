@@ -8,11 +8,11 @@ kms = u.km/u.s
 deg = u.deg
 Gyr = u.Gyr
 
-def orbit_sampling(N_samples):
-    pot  = potential.NFWPotential(a=19.4*kpc)
-    distr_funct = df.isotropicNFWdf(pot=pot,rmax=200*kpc,vo=230*kms,ro=8.2*kpc)
-    samples = distr_funct.sample(n=N_samples,return_orbit=True)
-    return samples 
+def orbit_sampling(N_samples,rmin=0.0,rmax=200):
+    pot  = potential.NFWPotential(a=19.0*kpc)
+    distr_funct = df.isotropicNFWdf(pot=pot,ro=8.0*kpc,vo=220*kms,rmax=rmax*kpc)
+    samples = distr_funct.sample(n=N_samples,return_orbit=True,rmin=rmin*kpc)
+    return samples
 
 def orbit_coordinates(samples,T_Gyr,nframes,ctype='Cartesian'):
     N_samples = len(samples)
@@ -36,31 +36,32 @@ def orbit_coordinates(samples,T_Gyr,nframes,ctype='Cartesian'):
             print("Type not valid!")
     return Coords
 
-def get_profile(nsamples,rmax=200):
+
+def get_profile(nsamples,bins=500,rmin=0.0,rmax=200):
     '''
 
     Reproduces the density profile from the sampled miniclusters
     
-    Use: r,rho = get_profile(nsamples,rmax=10000,ro=8)
+    Use: r,rho = get_profile(nsamples)
     
     Input: 
-        - nsamples: the sample array
-        - rmax: maximum radius in kpc  
+        - nsamples: the sample array  
 
     Output: 
        - r: radial coordinates in kpc
        - rho: density profiles in a.u.
     '''
     N_samples = int(nsamples)
-    pot  = potential.NFWPotential(a=19.4*kpc)
-    distr_funct = df.isotropicNFWdf(pot=pot,rmax=rmax*kpc,ro=8.2*kpc,vo=230*kms)
-    samples = distr_funct.sample(n=N_samples,return_orbit=False)
-    R_i = samples[0]
-    rmax = np.max(R_i)
-    dP,rb = np.histogram(R_i,bins=100,range=[1,rmax]) 
+    pot  = potential.NFWPotential(a=19.0*kpc)
+    distr_funct = df.isotropicNFWdf(pot=pot,ro=8.0*kpc,vo=220*kms,rmax=rmax*kpc)
+    samples = distr_funct.sample(n=N_samples,return_orbit=True,rmin=rmin*kpc)
+    R = samples.R()
+    dP,rb = np.histogram(np.log10(R),bins=bins,range=[0,np.log10(200)]) 
+    rb = 10**rb
     rc = (rb[0:-1]+rb[1:])/2
-    dr = rb[1]-rb[0]
+    dr = rb[1:]-rb[0:-1]
     rho = (1/(4*np.pi*rc**2))*(dP/dr)
+    rho = rho/rho[np.argmin(np.abs(rc-19.0))]
     return rc, rho
 
 
@@ -81,7 +82,7 @@ def disk_encounters(orbits,maxrad=0):
         enc_array = np.abs(np.diff(np.sign(z_path)))
         if maxrad > 0:
             mask = np.argwhere(R_path <= maxrad)
-            enc_array = enc_array[mask-1]
+            enc_array = enc_array[mask-1] # minus 1
         enc  = int(enc_array.sum()/2)
         enc_li.append(enc)
     return np.array(enc_li)
