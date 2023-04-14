@@ -4,6 +4,7 @@ import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
 from matplotlib.colors import ListedColormap
 from matplotlib import colors
+from mpl_toolkits.mplot3d.art3d import Line3D
 from mpl_toolkits.mplot3d import Axes3D
 
 import numpy as np
@@ -62,7 +63,7 @@ def MyGrid(ax):
     for i in range(0,100,10):
         x = i*kpc*np.cos(theta)
         y = i*kpc*np.sin(theta)
-        ax.plot(x,y,0,c='w',alpha=0.15)
+        ax.plot(x,y,0,c='w',alpha=0.5)
     
 
 def plot_Sun(ax,label=False):
@@ -74,8 +75,6 @@ def plot_Sun(ax,label=False):
     ax.plot(Orb0[:,0],Orb0[:,1],Orb0[:,2],'k-')
     if label == True:
         plt.gcf().text(0.15, 0.72,r'{\bf Sun}',fontsize=20,color='k')
-    #plt.show()
-
 
 def plot_single_orbit(orbit,azim=0,save=False,sun=True,disk=True,points=False,lim=10,size_x=10,size_y=10):
     fig = plt.figure(figsize=(size_x,size_y))
@@ -88,8 +87,10 @@ def plot_single_orbit(orbit,azim=0,save=False,sun=True,disk=True,points=False,li
         ax.scatter(orbit[:,0],orbit[:,1],orbit[:,2],'-',alpha=0.5,c=col)
     ax.plot(orbit[0,0],orbit[0,1],orbit[0,2],'-',marker='o',markersize=5,c=col)
     ax.plot(orbit[-1,0],orbit[-1,1],orbit[-1,2],'-',marker='X',markersize=5,c=col)
+
     if sun == True:
         plot_Sun(ax)
+
     if disk == True:
         theta = np.linspace(0, 2 * np.pi, 201)
         x = 30*kpc*np.cos(theta)
@@ -101,6 +102,64 @@ def plot_single_orbit(orbit,azim=0,save=False,sun=True,disk=True,points=False,li
     else:
         plt.show() 
 
+def single_plot_3d(mygrid=False,elev=10,rot=130,lim=30,size_x=10,size_y=10):
+    fig = plt.figure(figsize=(size_x,size_y))
+    ax = plt.axes(projection='3d')
+    plot_settings(ax,lim,lim,lim)
+    ax.view_init(elev,rot)
+    if mygrid == True:
+        ax.grid(False)
+        MyGrid(ax)
+    return fig,ax
+
+def plot_stream(stream,mygrid=False,elev=10,rot=130,lim=30,size_x=10,size_y=10):
+    fig,ax = single_plot_3d(mygrid=mygrid,elev=elev,rot=rot,lim=lim,size_x=size_x,size_y=size_y)
+    ax.plot(stream.x,stream.y,stream.z)
+    plt.show()
+
+def plot_frame(streams,frame,mygrid=False,elev=10,rot=130,lim=30,size_x=10,size_y=10):
+    fig,ax = single_plot_3d(mygrid=mygrid,elev=elev,rot=rot,lim=lim,size_x=size_x,size_y=size_y)
+    
+    x = np.array([streams[i].x[frame] for i in range(len(streams))])
+    y = np.array([streams[i].y[frame] for i in range(len(streams))])
+    z = np.array([streams[i].z[frame] for i in range(len(streams))])
+    ax.scatter(x,y,z,c='k')
+    
+    return fig
+
+def plot_frame_with_stream(streams,frame,mygrid=False,elev=10,rot=130,lim=30,sun=False,size_x=10,size_y=10):
+    fig,ax = single_plot_3d(mygrid=mygrid,elev=elev,rot=rot,lim=lim,size_x=size_x,size_y=size_y)
+    
+    xr = [streams[i].x[:frame] for i in range(len(streams))]
+    yr = [streams[i].y[:frame] for i in range(len(streams))]
+    zr = [streams[i].z[:frame] for i in range(len(streams))]
+    
+    x = np.array([streams[i].x[frame] for i in range(len(streams))])
+    y = np.array([streams[i].y[frame] for i in range(len(streams))])
+    z = np.array([streams[i].z[frame] for i in range(len(streams))])
+    
+    col = 'k'
+    alpha = 0.2
+
+    if mygrid == True:
+        col = 'teal'
+        alpha = 1
+    
+    if sun == True:
+        plot_Sun(ax)
+    
+    ax.scatter(x,y,z,c=col)
+    for i in range(len(streams)):
+        ax.plot(xr[i],yr[i],zr[i],alpha=alpha,c=col,lw=0.5)
+    return fig
+
+
+
+def plot_single_orbit_time(orbit,i,azim=0,save=False,sun=True,disk=True,points=False,lim=10,size_x=10,size_y=10):
+    fig = plt.figure(figsize=(size_x,size_y))
+    ax = plt.axes(projection='3d')
+    plot_settings(ax,lim,lim,lim)
+    col = 'teal'
 
 def plot_single_orbit_time(orbit,i,azim=0,save=False,sun=True,disk=True,points=False,lim=10,size_x=10,size_y=10):
     fig = plt.figure(figsize=(size_x,size_y))
