@@ -16,7 +16,7 @@ Gyr = u.Gyr
 
 N       = int(sys.argv[1])
 T_Gyr   = 13.5
-nframes = 1000
+nframes = 10000
 
 f_pattern = path+"/orbit_data/orbits_%d_d*.hdf5"%np.log10(N)
 files = glob.glob(f_pattern)
@@ -39,7 +39,6 @@ def dump_orbits(fname,N,T_Gyr,nframes):
         f.create_dataset('TimeSeries',data=ts)
 
         for i in range(N):
-
             R   = samples[i].R()
             z   = samples[i].z()
             vR  = samples[i].vR()
@@ -50,6 +49,7 @@ def dump_orbits(fname,N,T_Gyr,nframes):
             o.integrate(ts,potential.MWPotential2014)
 
             fg = f.create_group('Orbit_%.3d'%i)
+            fg.attrs.create("Eccentricity", o.e())
             fg.create_dataset('R',data=o.R(ts))
             fg.create_dataset('x',data=o.x(ts))
             fg.create_dataset('y',data=o.y(ts))

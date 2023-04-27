@@ -32,18 +32,37 @@ def stellar_density(x,y,z):
     '''
     return rhoR(x,y,z)+rhoz1(x,y,z)+rhoz2(x,y,z)
 
-def sample_from_stellar_density(ts,Orbits,j,samplesize=100):
+def get_ts_encounters(ts,rho,samplesize):
+    deg = 1
+    new_samplesize = samplesize
+    if samplesize > 0.2*len(ts):
+        new_samplesize = int(0.2*len(ts))
+        deg = int(round(samplesize/new_samplesize)) 
+    sampled_ts = np.random.choice(ts, p=rho/np.sum(rho), size=new_samplesize, replace=False)
+    sampled_ts = np.sort(sampled_ts)
+    return new_samplesize,sampled_ts,deg
+
+
+
+def sample_from_stellar_density(ts,Orbits,j,samplesize):
     '''
     Sample density values from the calculated stellar density
-    Returns sampled timestamps and density values
+    Returns sampled timestamps and encounter degeneracy 
 
     FIX: for now it onl takes a single orbit,
          there is an issue with time units (has to be dimensionless)
     '''
+    deg = 1
+    new_samplesize = samplesize
+    
+    if samplesize > 0.2*len(ts):
+        new_samplesize = 0.2*len(ts)
+        deg = samplesize/new_samplesize 
+
     rho = stellar_density(Orbits[:,0,j],Orbits[:,1,j],Orbits[:,2,j])
     sorted_indices = np.argsort(ts)
-    sampled_ts = np.random.choice(ts, p=rho/np.sum(rho), size=samplesize, replace=False)
+    sampled_ts = np.random.choice(ts, p=rho/np.sum(rho), size=new_samplesize, replace=False)
     sampled_indices = np.searchsorted(ts[sorted_indices], sampled_ts)
     sorted_sampled_indices = sorted_indices[sampled_indices]
     sampled_rho = rho[sorted_sampled_indices]
-    return sampled_ts,sampled_rho
+    return sampled_ts,deg

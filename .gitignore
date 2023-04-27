@@ -8,6 +8,7 @@ notes.txt
 
 test_plots/
 
+orbit_data/orbits_1_d1*.hdf5
 orbit_data/orbits_2_*
 orbit_data/orbits_3_*
 orbit_data/orbits_4_*
@@ -15,3 +16,14 @@ orbit_data/orbits_4_*
 scripts/movie.sh
 scripts/orbit_movie.py
 scripts/rename.py
+
+encounters/
+	
+main.py
+notebooks/*
+
+papers/
+
+scripts/dump_data.sh
+scripts/enc_distribution.py
+scripts/pipeline.py
