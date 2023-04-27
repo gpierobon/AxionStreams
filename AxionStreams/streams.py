@@ -30,6 +30,7 @@ class Stream():
         self.set_encounters(ts)
     
     def perturb(self):
+
         # Here we pass the number of encounters and calculate the E_List and disr time
         # At the end recompute the energy 
         #self.get_stream_energies(self)
@@ -70,6 +71,8 @@ class Stream():
         qq = [finterp.integral(0, t) for t in xx]        
         
         self.N_encounters  = int(round(qq[-1]))
+        if self.N_encounters > 1e6:
+            self.N_encounters = 1e6
         new_enc,ts_enc,enc_deg = dens.get_ts_encounters(ts,star_density,self.N_encounters)
         self.N_encounters = new_enc
         self.ts_enc = ts_enc
