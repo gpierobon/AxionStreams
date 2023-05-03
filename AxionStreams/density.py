@@ -40,7 +40,8 @@ def get_ts_encounters(ts,rho,samplesize):
         deg = int(round(samplesize/new_samplesize)) 
     sampled_ts = np.random.choice(ts, p=rho/np.sum(rho), size=new_samplesize, replace=False)
     sampled_ts = np.sort(sampled_ts)
-    return new_samplesize,sampled_ts,deg
+    ts_indices = np.where(np.isin(ts, sampled_ts))[0]
+    return new_samplesize,ts_indices,deg
 
 
 
