@@ -13,6 +13,10 @@ orbit_data/orbits_2_*
 orbit_data/orbits_3_*
 orbit_data/orbits_4_*
 
+orbit_data_Sun/orbits_1_*
+orbit_data_Sun/orbits_2_*
+orbit_data_Sun/orbits_3_*
+
 scripts/movie.sh
 scripts/orbit_movie.py
 scripts/rename.py
