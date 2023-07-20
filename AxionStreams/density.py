@@ -35,8 +35,8 @@ def stellar_density(x,y,z):
 def get_ts_encounters(ts,rho,samplesize):
     deg = 1
     new_samplesize = samplesize
-    if samplesize > 0.2*len(ts):
-        new_samplesize = int(0.2*len(ts))
+    if samplesize > 0.3*len(ts):
+        new_samplesize = int(0.3*len(ts))
         deg = int(round(samplesize/new_samplesize)) 
     sampled_ts = np.random.choice(ts, p=rho/np.sum(rho), size=new_samplesize, replace=False)
     sampled_ts = np.sort(sampled_ts)

@@ -1,4 +1,5 @@
 import os, sys, glob
+import time
 import h5py as h5
 import numpy as np
 from astropy import units as u
@@ -17,7 +18,7 @@ Gyr = u.Gyr
 
 N       = int(sys.argv[1])
 T_Gyr   = 13.5
-nframes = 800
+nframes = 500
 dtype   = 'Sun'
 
 if dtype == 'Sun':
@@ -92,8 +93,11 @@ def dump_Sun_orbits(fname,N,T_Gyr,nframes):
 
     with h5.File(path+'/orbit_data_Sun/'+fname,'w') as f:
         f.create_dataset('TimeSeries',data=ts)
-
+        start = time.time()
         for i in range(N):
+            display = np.arange(0,N,np.ceil(N*0.04))
+            if i in display:
+                print("Walltime %g, %d/%d ..."%(time.time()-start,i,N))
             R = 8
             z = 0
             phi = 0

@@ -33,7 +33,16 @@ def get_kappa(i):
         ka = 1.73
     return ka
 
+def get_bmax(i):
+    # Model 0: NFW
+    if i == 0:
+        bmax = 0.1*1e-3
+    # Model 1: PL
+    elif i == 1:
+        bmax = 0.075*1e-3
+    return bmax
+
 def get_radius(ic,mass):
     rho = sample.sample_mc_density(ic)
     rad = (3*mass/(4*np.pi*rho))**(1./3.)
-    return rad
+    return rad,rho
