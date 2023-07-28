@@ -16,31 +16,35 @@ def inverse_transform_sampling(function, xmin, xmax, nbins=1000, n_samples=1000,
     r = np.random.rand(n_samples)
     return inv_cdf(r)
 
-def draw_random_b(bmin,bmax,size):
-    P_b = lambda b: 2*b/(bmax**2 - bmin**2)
-    blist = inverse_transform_sampling(P_b, bmin, bmax, n_samples=size)
-    return blist
+def draw_random_b(bmin,bmax):
+    P_b = lambda b: 2*b/(bmax**2 - bmin**2) 
+    brand = inverse_transform_sampling(P_b, bmin, bmax, n_samples=1) 
+    return brand
 
-def draw_random_Mass(ic):
+def draw_random_Mass(isomer,ic=1):
     '''
-     M**pow1*(M<M_break) + M**pow2*(M>M_break)*(M_break**pow1/(M_break**pow2))
     '''
-    # Jaxions
-    if ic == 0:
-        M_min = 1e-15
-        M_max = 1e-10
-        gamma = 0.8
-    # Moore
-    elif ic == 1:
-        M_min = 1e-16
-        M_max = 1e-11
-        gamma = 0.9
-    # Spax
-    elif ic == 2:
-        M_min = 1e-18
-        M_max = 3e-14
-        gamma = 0.68
-
+    if isomer == 0: # Isolated
+        # Jaxions
+        if ic == 0:
+            M_min = 1e-15
+            M_max = 1e-10
+            gamma = 0.7
+        # Moore
+        elif ic == 1:
+            M_min = 1e-16
+            M_max = 1e-12
+            gamma = 0.8
+        # Spax
+        elif ic == 2:
+            M_min = 1e-18
+            M_max = 3e-14
+            gamma = 0.68
+    elif isomer == 1: # Merged
+        if ic == 1: 
+            M_min = 1e-12
+            M_max = 1e-7
+            gamma = 0.5
     norm = 1
     P_M = lambda M: norm*(M)*(-gamma)
     mass = inverse_transform_sampling(P_M,M_min,M_max,n_samples=1,logarithmic=True)

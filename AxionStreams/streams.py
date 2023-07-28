@@ -61,36 +61,48 @@ class Stream():
         self.G_N = 4.3e-6        # kpc*km^2/Msun/s^2
         self.c2 = (3e5)**2
         
-        pl = 0  # To implement better
-        ic = 0  # To implement better
+        isomer = 0               # 0 merged, 1 isolated
+        ic = 0                   # To implement better
 
-        if pl == 0:
+        if isomer == 0:
             self.prof = 'NFW'
         else:
             self.prof = 'PL'
         
-        self.alpha2 = model.get_alpha2(pl)
-        self.beta = model.get_beta(pl)
-        self.kappa = model.get_kappa(pl)
+        # Structural parameters
+        self.alpha2 = model.get_alpha2(isomer)
+        self.beta = model.get_beta(isomer)
+        self.kappa = model.get_kappa(isomer)
+        self.bmax = model.get_bmax(isomer)
 
-        # Physical parameters 
-        self.Mass = sample.draw_random_Mass(ic)
-        self.IMass = self.Mass      
-        self.Rad = model.get_radius(ic,self.Mass)
-        #print(self.IMass,self.Rad)
+        # Mass, rad, density
+        singlemass = 0
+       
+        if singlemass == 0:
+            self.Mass = 1e-7
+        else: 
+            self.Mass = sample.draw_random_Mass(ic)
+       
+        self.IMass = self.Mass
         
-        self.bmax = 2e-5         
-        self.bmin = 1e-5         
+        if isomer == 0:
+            #self.Rad = model.get_radius_mer_K(self.Mass)
+            #self.Rad = model.get_radius_mer_Dai(self.Mass)
+            self.Rad = model.get_radius_merged(self.Mass) # defaults to Xiao et al.
+            self.rho = model.get_rho_mer(self.Mass,self.Rad)
 
-        self.vin = np.sqrt(self.vx[0]**2+self.vx[1]**2+self.vx[2]**2)    # km/s
+        else:
+            self.Rad, self.rho = model.get_rho_radius_iso(isomer,self.Mass)
+        
+        self.vin = np.sqrt(self.vx[0]**2+self.vy[0]**2+self.vz[2]**2)    # km/s
         self.vdisp = (self.kappa*self.G_N*self.Mass/self.Rad)**(1/2)     # km/s
-        
+               
         # To implement
         # Transition radius, Eq. (7) of 2207.11276, f_b=6
         #self.bs = 6*np.sqrt(2*np.sqrt(self.alpha2)/(3*self.beta))*self.Rad 
         
 
-    def set_encounters(self,ts):
+    def set_encounters(self,ts,debug=False):
         '''
         '''
         kms_to_kpcGyr = 1.02269 
@@ -104,7 +116,6 @@ class Stream():
         qq = [finterp.integral(0, t) for t in xx]        
         
         self.N_encounters  = int(round(qq[-1]))
-
         if self.N_encounters > 1e6:
             self.N_encounters = 1e6
         
@@ -112,7 +123,8 @@ class Stream():
         self.N_encounters = new_enc
         self.t_enc_ind = t_enc_ind
         self.enc_deg = enc_deg
-        self.print0("Stream %d has %d encounters"%(self.ID,self.N_encounters))                    
+        if debug == True:
+            self.print0("Stream %d has %d encounters"%(self.ID,self.N_encounters))                    
         
         del xx, qq, star_density
 
@@ -134,7 +146,7 @@ class Stream():
     def set_perturb_array(self):
         '''
         '''
-        # Fix the relative velocity in the encounters
+        # Compute relative velocity 
         kpc = u.kpc
         kms = u.km/u.s
         R_list = [np.sqrt(self.x[ti]**2+self.y[ti]**2) for ti in self.t_enc_ind]
@@ -150,13 +162,16 @@ class Stream():
         self.vlist = np.array(self.vlist)
         
         del vstar_x, vstar_y, venc_x, venc_y, vcirc_list, R_list, phi_list
-
-        # Draw a random impact parameter
-        self.blist = sample.draw_random_b(self.bmin,self.bmax,self.N_encounters) # kpc
+        
+        # Draw a random impact parameter, bmin is an array 
+        self.bmin = np.sqrt(1/self.vlist)*(self.alpha2*self.G_N/(np.pi*self.beta*self.rho))**(1/4)
+        self.blist = [sample.draw_random_b(self.bmin[j],self.bmax) for j in range(self.N_encounters)]
+        self.blist = np.reshape(self.blist,(self.N_encounters))
         
         # Delta E imparted, there is an implicit Mstar**2=1 Msun**2 in the numerator to fix units
         self.DelE = 4./3.*self.G_N**2/(self.blist**4*self.vlist**2)*self.Mass*self.alpha2*self.Rad**2*self.c2
-
+        self.DelE = np.array(self.DelE)
+        
     def perturb(self,saveE=False,debug=False):
         '''
         '''
@@ -237,7 +252,8 @@ class Stream():
             self.Ml = np.array(M_list)
         
         # Example print for first stream
-        self.print0("For stream %d max dE is %.8f"%(self.ID,dE_max))
+        if debug == True:
+            self.print0("For stream %d max dE is %.8f"%(self.ID,dE_max))
 
     def get_local_M(self,ts,debug=False):
         '''
@@ -270,7 +286,7 @@ class Stream():
             pass
         else:
             with open(fileout,'a') as f:
-                f.write("%g %g %g %g %g \n"%(self.isstream,self.vin,self.IMass,self.Mass,self.Slocal))
+                f.write("%g %g %g %g %g %g \n"%(self.isstream,self.vin,self.IMass,self.Mass,self.Slocal,self.vdisp))
 
         
 def get_ts(fname):  
