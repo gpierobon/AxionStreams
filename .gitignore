@@ -13,9 +13,9 @@ orbit_data/orbits_2_*
 orbit_data/orbits_3_*
 orbit_data/orbits_4_*
 
-orbit_data_Sun/orbits_1_*
-orbit_data_Sun/orbits_2_*
-orbit_data_Sun/orbits_3_*
+orbit_data/Sun/orbits_2_*
+orbit_data/Sun/orbits_3_*
+orbit_data/Sun/orbits_4_*
 
 stream_data/streams_*
 stream_data/merged_s*/
