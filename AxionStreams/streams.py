@@ -44,8 +44,6 @@ class Stream():
         '''
         '''
         with h5.File(fname,'r') as f:
-            #self.e = f['Orbit_%03d/Eccentricity'%self.ID]  
-            #self.R = np.array(f['Orbit_%03d/R'%self.ID])
             self.x = np.array(f['Orbit_%03d/x'%self.ID])
             self.y = np.array(f['Orbit_%03d/y'%self.ID])
             self.z = np.array(f['Orbit_%03d/z'%self.ID])
@@ -62,32 +60,27 @@ class Stream():
         self.c2 = (3e5)**2
         
         isomer = 0               # 0 merged, 1 isolated
-        ic = 0                   # To implement better
+        ic = 1                   # To implement better
 
         if isomer == 0:
             self.prof = 'NFW'
         else:
             self.prof = 'PL'
         
-        # Structural parameters
-        self.alpha2 = model.get_alpha2(isomer)
-        self.beta = model.get_beta(isomer)
-        self.kappa = model.get_kappa(isomer)
-        self.bmax = model.get_bmax(isomer)
+        # Structural parameters and bmax
+        self.alpha2,self.beta,self.kappa,self.bmax = model.get_perturb_parameters(isomer)
 
         # Mass, rad, density
-        singlemass = 0
+        singlemass = 1
        
         if singlemass == 0:
-            self.Mass = 1e-7
+            self.Mass = 1e-12
         else: 
-            self.Mass = sample.draw_random_Mass(ic)
+            self.Mass = sample.draw_random_Mass(isomer)
        
         self.IMass = self.Mass
         
         if isomer == 0:
-            #self.Rad = model.get_radius_mer_K(self.Mass)
-            #self.Rad = model.get_radius_mer_Dai(self.Mass)
             self.Rad = model.get_radius_merged(self.Mass) # defaults to Xiao et al.
             self.rho = model.get_rho_mer(self.Mass,self.Rad)
 
@@ -96,7 +89,7 @@ class Stream():
         
         self.vin = np.sqrt(self.vx[0]**2+self.vy[0]**2+self.vz[2]**2)    # km/s
         self.vdisp = (self.kappa*self.G_N*self.Mass/self.Rad)**(1/2)     # km/s
-               
+        
         # To implement
         # Transition radius, Eq. (7) of 2207.11276, f_b=6
         #self.bs = 6*np.sqrt(2*np.sqrt(self.alpha2)/(3*self.beta))*self.Rad 
@@ -283,6 +276,7 @@ class Stream():
         and prints what it is saving
         '''
         if hdf5 == True:
+            # Here we can save the all the orbit, perturbation and stream data 
             pass
         else:
             with open(fileout,'a') as f:

@@ -1,27 +1,49 @@
 import scipy
 import numpy as np
 
-# Credits to Bradley Kavanagh (https://github.com/bradkav/axion-miniclusters/blob/main/code/tools.py)
-def inverse_transform_sampling(function, xmin, xmax, nbins=1000, n_samples=1000, logarithmic=False):
-    if (logarithmic):
-        bins = np.geomspace(xmin, xmax, num=nbins)
-    else:
-        bins = np.linspace(xmin, xmax, num=nbins)
-    pdf = function(np.delete(bins,-1) + np.diff(bins)/2)
-    Norm = np.sum(pdf*np.diff(bins))
-    pdf /= Norm
-    cumul_values = np.zeros(bins.shape)
-    cumul_values[1:] = np.cumsum(pdf*np.diff(bins))
-    inv_cdf = scipy.interpolate.interp1d(cumul_values, bins)
-    r = np.random.rand(n_samples)
-    return inv_cdf(r)
 
-def draw_random_b(bmin,bmax):
-    P_b = lambda b: 2*b/(bmax**2 - bmin**2) 
-    brand = inverse_transform_sampling(P_b, bmin, bmax, n_samples=1) 
-    return brand
+def draw_random_b(bmin,bmax,nm=1000,n_samples=1):
+    bvals = np.geomspace(bmin,bmax,nm)
+    PM = 2*bvals/(bmax**2 - bmin**2)
+    ic = np.random.choice(np.arange(0,nm),p=PM/np.sum(PM),size=n_samples)
+    b_sample = bvals[ic]
+    return b_sample
 
-def draw_random_Mass(isomer,ic=1):
+
+def draw_random_Mass(isomer,ic=1,n_samples=1,nm=1000):
+    '''
+    '''
+    if isomer == 1: # Isolated
+        # Jaxions
+        if ic == 0:
+            M_min = 1e-15
+            M_max = 1e-10
+            gamma = 0.7
+        # Moore
+        elif ic == 1:
+            M_min = 1e-16
+            M_max = 1e-12
+            gamma = 0.8
+        # Spax
+        elif ic == 2:
+            M_min = 1e-18
+            M_max = 3e-14
+            gamma = 0.68
+
+    elif isomer == 0: # Merged
+        if ic == 1: 
+            M_min = 1e-12
+            M_max = 5e-7
+            gamma = 0.5
+
+    Mvals = np.geomspace(M_min,M_max,nm)
+    PM = Mvals**-gamma
+    ic = np.random.choice(np.arange(0,nm),p=PM/np.sum(PM),size=n_samples)
+    M_sample = Mvals[ic]
+    return M_sample
+
+
+def draw_random_Mass_old(isomer,ic=1):
     '''
     '''
     if isomer == 0: # Isolated
@@ -43,12 +65,13 @@ def draw_random_Mass(isomer,ic=1):
     elif isomer == 1: # Merged
         if ic == 1: 
             M_min = 1e-12
-            M_max = 1e-7
+            M_max = 1e-6
             gamma = 0.5
     norm = 1
     P_M = lambda M: norm*(M)*(-gamma)
     mass = inverse_transform_sampling(P_M,M_min,M_max,n_samples=1,logarithmic=True)
     return mass
+
 
 def sample_mc_density(ic):
     '''
