@@ -18,11 +18,11 @@ Gyr = u.Gyr
 
 N       = int(sys.argv[1])
 T_Gyr   = 13.5
-nframes = 500
+nframes = 2000
 dtype   = 'Sun'
 
 if dtype == 'Sun':
-    f_pattern = path+"/orbit_data_Sun/orbits_%d_d*.hdf5"%np.log10(N)
+    f_pattern = path+"/orbit_data/Sun/orbits_%d_d*.hdf5"%np.log10(N)
 else:
     f_pattern = path+"/orbit_data/orbits_%d_d*.hdf5"%np.log10(N)
 files = glob.glob(f_pattern)
@@ -35,7 +35,7 @@ else:
     fname = "orbits_%d_d00.hdf5"%(np.log10(N))
 
 if dtype == 'Sun':
-    print("Creating file: ",path+'/orbit_data_Sun/'+fname)
+    print("Creating file: ",path+'/orbit_data/Sun/'+fname)
 else:
     print("Creating file: ",path+'/orbit_data/'+fname)
 
@@ -91,7 +91,7 @@ def dump_Sun_orbits(fname,N,T_Gyr,nframes):
     vin = np.sqrt(vels[:,0]**2+vels[:,1]**2+vels[:,2]**2)
     print("Max v_in = %5f"%(np.max(vin)))
 
-    with h5.File(path+'/orbit_data_Sun/'+fname,'w') as f:
+    with h5.File(path+'/orbit_data/Sun/'+fname,'w') as f:
         f.create_dataset('TimeSeries',data=ts)
         start = time.time()
         for i in range(N):

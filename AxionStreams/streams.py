@@ -34,6 +34,7 @@ class Stream():
         self.set_perturb_data()
         self.set_perturb_array()
         self.set_stream_energies()
+        self.IEbind = self.Ebind
         self.perturb(saveE=False,debug=False)
         self.get_local_M(ts,debug=False)
         self.dump(fout,hdf5=False)
@@ -59,7 +60,7 @@ class Stream():
         self.G_N = 4.3e-6        # kpc*km^2/Msun/s^2
         self.c2 = (3e5)**2
         
-        isomer = 0               # 0 merged, 1 isolated
+        isomer = 0                # 0 merged, 1 isolated
         ic = 1                   # To implement better
 
         if isomer == 0:
@@ -70,15 +71,8 @@ class Stream():
         # Structural parameters and bmax
         self.alpha2,self.beta,self.kappa,self.bmax = model.get_perturb_parameters(isomer)
 
-        # Mass, rad, density
-        singlemass = 1
-       
-        if singlemass == 0:
-            self.Mass = 1e-12
-        else: 
-            self.Mass = sample.draw_random_Mass(isomer)
-       
-        self.IMass = self.Mass
+        # Mass, rad, density 
+        self.Mass = sample.draw_random_Mass(isomer)
         
         if isomer == 0:
             self.Rad = model.get_radius_merged(self.Mass) # defaults to Xiao et al.
@@ -90,10 +84,14 @@ class Stream():
         self.vin = np.sqrt(self.vx[0]**2+self.vy[0]**2+self.vz[2]**2)    # km/s
         self.vdisp = (self.kappa*self.G_N*self.Mass/self.Rad)**(1/2)     # km/s
         
+        # Initial values 
+        self.IMass = self.Mass
+        self.IRad = self.Rad
+        self.Ivdisp = self.vdisp
+
         # To implement
         # Transition radius, Eq. (7) of 2207.11276, f_b=6
         #self.bs = 6*np.sqrt(2*np.sqrt(self.alpha2)/(3*self.beta))*self.Rad 
-        
 
     def set_encounters(self,ts,debug=False):
         '''
@@ -126,7 +124,8 @@ class Stream():
         '''
         self.Ebind = self.beta*self.G_N*self.Mass**2/self.Rad*self.c2
         self.Etot = (0.5*self.kappa/self.beta - 1)*self.Ebind*self.c2
-
+        
+        
     def set_perturb_data(self):
         '''
         '''
@@ -196,10 +195,13 @@ class Stream():
                 dE_remain = dE*(1 - self.fej_I(dE)) - self.fub_I(dE)*self.Etot
                 dE_remain *= self.Ebind
            
-            # Mass loss modifieds mass
+            # Mass loss modifies mass
             newMass = self.Mass - dM
             newRad = self.Rad
-            newVel = self.vdisp*(1+dE)
+            if dE > 10:
+                newVel = self.vdisp
+            else:
+                newVel = self.vdisp*(1+dE)
             
             # Energy conservation, needed to establish the new radius 
             E_f = self.Etot + dE_remain
@@ -209,10 +211,11 @@ class Stream():
                 if fs == 0:
                     self.isstream = 1
                     self.t_disr_ind = self.t_enc_ind[counter]
-                    fs = 1    
+                    fs = 1
+                newRad = self.Rad
             else:
-               # We updated radius as long as we have a minicluster
-               newRad = (0.5*self.kappa - self.beta)*self.G_N*newMass**2/E_f*self.c2**2
+                # We updated radius as long as we have a minicluster
+                newRad = (0.5*self.kappa - self.beta)*self.G_N*newMass**2/E_f*self.c2**2
 
             if debug == True:
                 self.print0("dM %g dE_remain %g Etot %g E_f %g"%(dM,dE_remain,self.Etot,E_f))
@@ -239,6 +242,7 @@ class Stream():
         # To Numpy array for the analysis
         self.MassLoss = np.array(Mloss_list)
         self.Vdisp = np.array(vdisp_list)
+        
         if saveE == True:
             self.Ebl = np.array(Eb_list)
             self.Rl = np.array(R_list)
@@ -280,7 +284,9 @@ class Stream():
             pass
         else:
             with open(fileout,'a') as f:
-                f.write("%g %g %g %g %g %g \n"%(self.isstream,self.vin,self.IMass,self.Mass,self.Slocal,self.vdisp))
+                f.write("%g %g %g %g %g %g %g %g %g %g %g\n"%(self.isstream,self.vin,\
+                        self.Vdisp[-1],self.Slocal,self.IMass,self.Mass,self.IRad,\
+                        self.Rad,self.vx[-1],self.vy[-1],self.vz[-1]))
 
         
 def get_ts(fname):  
