@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#PBS -P xu32
+#PBS -q normalsr
+
+#PBS -l walltime=48:00:00
+#PBS -l storage=scratch/xu32
+
+#PBS -l mem=180gb
+#PBS -l ncpus=48
+#PBS -l wd
+
+#PBS -M g.pierobon@unsw.edu.au
+#PBS -m e
+#PBS -N genpl
+
+module purge
+module load python3
+
+source /home/561/gp5547/python_env/bin/activate
+export OMP_NUM_THREADS=48
+
+
+SIZE=1000             # Nsamples
+FILE=0                # Random file with orbits 
+INT=1                 # 0 Interactive, 1 is on the Cluster 
+
+python3 scripts/merged.py $INT $SIZE $FILE
