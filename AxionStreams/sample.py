@@ -83,8 +83,8 @@ def sample_mc_density(ic):
         rhostd = 9.957e4*1e9
     # Moore
     elif ic == 1:
-        rhomean = 1.246e3*1e9 # Fix
-        rhostd = 1.916e4*1e9  # Fix
+        rhomean = 1.3e7*1e9 # Fix
+        rhostd = 6.5e7*1e9  # Fix
     # Spax
     elif ic == 2:
         rhomean = 1.384e3*1e9 # Fix
