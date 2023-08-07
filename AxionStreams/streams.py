@@ -23,13 +23,13 @@ class Stream():
         if self.ID == 0:
             print(message)
 
-    def run(self, fin, fout, ts):
+    def run(self, fin, fout, isomer, ts):
         '''
         '''
         self.print0("Reading orbits from %s ... "%fin.split('/')[-1])
 
         self.read_orbit(fin)
-        self.set_parameters() 
+        self.set_parameters(isomer) 
         self.set_encounters(ts)
         self.set_perturb_data()
         self.set_perturb_array()
@@ -52,7 +52,7 @@ class Stream():
             self.vy = np.array(f['Orbit_%03d/vy'%self.ID])
             self.vz = np.array(f['Orbit_%03d/vz'%self.ID])
     
-    def set_parameters(self):
+    def set_parameters(self,isomer,ic=1):
         '''
         Units: Msun, kpc, km/s
         '''
@@ -60,9 +60,6 @@ class Stream():
         self.G_N = 4.3e-6        # kpc*km^2/Msun/s^2
         self.c2 = (3e5)**2
         
-        isomer = 0                # 0 merged, 1 isolated
-        ic = 1                   # To implement better
-
         if isomer == 0:
             self.prof = 'NFW'
         else:
