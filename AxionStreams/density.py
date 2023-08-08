@@ -32,7 +32,8 @@ def stellar_density(x,y,z):
     '''
     return rhoR(x,y,z)+rhoz1(x,y,z)+rhoz2(x,y,z)
 
-def get_ts_encounters(ts,rho,samplesize):
+# Legacy version
+def get_ts_encounters_old(ts,rho,samplesize):
     deg = 1
     new_samplesize = samplesize
     if samplesize > 0.3*len(ts):
@@ -43,6 +44,16 @@ def get_ts_encounters(ts,rho,samplesize):
     ts_indices = np.where(np.isin(ts, sampled_ts))[0]
     return new_samplesize,ts_indices,deg
 
+def get_ts_encounters(ts,rho,samplesize):
+    deg = 1
+    nt = len(ts)
+    if samplesize > 0.5*nt:
+        deg = int(round(samplesize/(0.5*nt)))
+        samplesize = int(0.5*nt)
+
+    ts_indices = np.random.choice(np.arange(0,nt),p=rho/np.sum(rho),size=samplesize,replace=True)
+    ts_indices = np.sort(ts_indices)
+    return samplesize,ts_indices,deg
 
 
 def sample_from_stellar_density(ts,Orbits,j,samplesize):

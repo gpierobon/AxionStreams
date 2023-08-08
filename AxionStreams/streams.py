@@ -111,6 +111,7 @@ class Stream():
         self.N_encounters = new_enc
         self.t_enc_ind = t_enc_ind
         self.enc_deg = enc_deg
+        
         if debug == True:
             self.print0("Stream %d has %d encounters"%(self.ID,self.N_encounters))                    
         
