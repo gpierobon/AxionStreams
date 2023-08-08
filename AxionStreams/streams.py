@@ -189,6 +189,7 @@ class Stream():
                 dE_remain = dE*self.Ebind
             else:
                 dM = self.dM_I(dE)*self.Mass
+                dM = dM[0]
                 dE_remain = dE*(1 - self.fej_I(dE)) - self.fub_I(dE)*self.Etot
                 dE_remain *= self.Ebind
            
