@@ -38,19 +38,19 @@ class Stream():
         self.perturb(saveE=False,debug=False)
         self.get_local_M(ts,debug=False)
         self.dump(fout,hdf5=False)
-
+    
     # --------------------------------------------------
 
     def read_orbit(self, fname):
         '''
         '''
         with h5.File(fname,'r') as f:
-            self.x = np.array(f['Orbit_%03d/x'%self.ID])
-            self.y = np.array(f['Orbit_%03d/y'%self.ID])
-            self.z = np.array(f['Orbit_%03d/z'%self.ID])
-            self.vx = np.array(f['Orbit_%03d/vx'%self.ID])
-            self.vy = np.array(f['Orbit_%03d/vy'%self.ID])
-            self.vz = np.array(f['Orbit_%03d/vz'%self.ID])
+            self.x = np.flipud(np.array(f['Orbit_%03d/x'%self.ID]))
+            self.y = np.flipud(np.array(f['Orbit_%03d/y'%self.ID]))
+            self.z = np.flipud(np.array(f['Orbit_%03d/z'%self.ID]))
+            self.vx = np.flipud(np.array(f['Orbit_%03d/vx'%self.ID]))
+            self.vy = np.flipud(np.array(f['Orbit_%03d/vy'%self.ID]))
+            self.vz = np.flipud(np.array(f['Orbit_%03d/vz'%self.ID]))
     
     def set_parameters(self,isomer,ic=1):
         '''
@@ -235,7 +235,6 @@ class Stream():
             self.set_stream_energies()
             counter += 1
             
-
         # To Numpy array for the analysis
         self.MassLoss = np.array(Mloss_list)
         self.Vdisp = np.array(vdisp_list)
