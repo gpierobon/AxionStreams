@@ -20,6 +20,7 @@ orbit_data/Sun/orbits_4_*
 stream_data/streams_*
 stream_data/merged_s*/
 stream_data/merged/streams_2*
+stream_data/iso/streams_2*
 stream_data/merged/streams_3*
 stream_data/iso/streams_3*
 stream_data/merged/streams_4*
@@ -31,6 +32,8 @@ stream_data/mass/
 scripts/movie.sh
 scripts/orbit_movie.py
 scripts/rename.py
+scripts/*.e*
+scripts/*.o*
 
 main_encounters.py
 

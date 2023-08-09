@@ -19,7 +19,6 @@ def average_streamN(streamM,void=0.08):
     rholocal = rhoDM*(1-rhovoidNorm)
     streamN = rholocal/np.mean(streamM)
     return streamN
-
     
 def draw_Slocal(size,prob=0.7,verbose=False):
     if np.random.random() > prob:
@@ -38,7 +37,7 @@ def draw_Slocal(size,prob=0.7,verbose=False):
     return mass_sample
 
 
-def saturate_DM(size,max_iter=int(np.ceil(1e6)))
+def saturate_DM(size,max_iter=int(np.ceil(1e6))):
     totmass = 0
     totsize = int(10**size)
     malist = []

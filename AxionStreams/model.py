@@ -22,7 +22,9 @@ def get_perturb_parameters(i):
     return al2,be,ka,bmax
 
 def get_rho_radius_iso(ic,mass):
-    rho = sample.sample_mc_density(ic)
+    # This dilution factor is calibrated by N-body simulations of isolated MCs
+    dil = 200
+    rho = sample.sample_mc_density(ic)/dil
     rad = (3*mass/(4*np.pi*rho))**(1./3.)
     return rad,rho
 
@@ -42,7 +44,6 @@ def get_radius_Xiao(mass,Amp=1.3e-3,M0=2.47e-10,z=19):
     Relation from Xiao et al. 2019
     '''
     rad = 1.4e4/(1+z)/np.sqrt(mass/(Amp*M0))*1e-3*3.7e-3/0.7*(mass/1e-6)**(5/6)*(Amp*M0/1e-11)**(-1/2)
-    #print(rad)
     return rad
        
 
@@ -60,7 +61,6 @@ def get_radius_Dai(mass):
         c = np.random.uniform(100,500)
     
     rad = c*1e-3*973/0.7*au_to_pc*(mass/1e-6)**(5/6) 
-    print(mass,rad,c)
     return rad
 
 
@@ -70,7 +70,6 @@ def get_radius_Kavanagh(mass):
     '''
     m_to_pc  = 3.240756e-17
     rad = 1e12*m_to_pc*(mass/1e-10)**(1/2)*1e-3
-    #print(mass,rad)
     return rad
 
 def get_rho_mer(mass,rad):

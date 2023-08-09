@@ -29,10 +29,10 @@ Gyr = u.Gyr
 INTERACT  = int(sys.argv[1])
 N_SAMPLES = int(sys.argv[2])
 READ_FILE = int(sys.argv[3])
-ISO_MERG  = 0
+ISO_MERG  = 1
 
 fin     = path+'/orbit_data/Sun/orbits_%d_d%02d.hdf5'%(np.log10(N_SAMPLES),READ_FILE)
-fout     = path+'/stream_data/merged/streams_%d_d%02d.txt'%(np.log10(N_SAMPLES),READ_FILE)
+fout     = path+'/stream_data/iso/streams_%d_d%02d.txt'%(np.log10(N_SAMPLES),READ_FILE)
 ts = st.get_ts(fin)
 
 streams = [st.Stream(i) for i in range(N_SAMPLES)]
