@@ -9,6 +9,7 @@ from astropy import units as u
 from tqdm import tqdm
 
 path = os.getcwd()
+sys.path.append(path)
 
 # Scripts
 from AxionStreams import plot as pl
