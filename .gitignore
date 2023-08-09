@@ -3,6 +3,7 @@ __pycache__/
 .ipynb_checkpoints/
 movies/
 pictures/
+info/
 
 notes.txt
 
@@ -16,6 +17,9 @@ orbit_data/orbits_4_*
 orbit_data/Sun/orbits_2_*
 orbit_data/Sun/orbits_3_*
 orbit_data/Sun/orbits_4_*
+orbit_data/Sun/orbits_5_*
+orbit_data/Sun/orbits_6_*
+orbit_data/Sun/old/
 
 stream_data/streams_*
 stream_data/merged_s*/
@@ -29,6 +33,7 @@ stream_data/merged/streams_5*
 stream_data/iso/streams_5*
 stream_data/mass/
 
+scripts/orbit
 scripts/movie.sh
 scripts/orbit_movie.py
 scripts/rename.py
