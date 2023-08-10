@@ -58,12 +58,12 @@ def final_samples(size,isomer,localsize=1e-9):
     path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     if isomer == 0:
         f_pattern = path+"/stream_data/merged/streams_%.1d_d*.txt"%size
-        ofile = path+'/stream_data/WN_%d.txt'%size
-        off = '/stream_data/WN_%d.txt'%size
+        ofile = path+'/stream_data/WN.txt'%size
+        off = '/stream_data/WN.txt'%size
     else:
         f_pattern = path+"/stream_data/iso/streams_%.1d_d*.txt"%size
-        ofile = path+'/stream_data/NL_%d.txt'%size
-        off = '/stream_data/NL_%d.txt'%size
+        ofile = path+'/stream_data/NL.txt'%size
+        off = '/stream_data/NL.txt'%size
 
     files = glob.glob(f_pattern)
     fsamples = np.empty((0, 14))
@@ -77,35 +77,42 @@ def final_samples(size,isomer,localsize=1e-9):
     print("Output %s has %d samples "%(off,len(fsamples[:,0])))
     
 
-def draw_Slocal(size,prob=0.7,verbose=False):
+def draw_sample(wn,nl,prob=0.7,verbose=False):
+    path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     if np.random.random() > prob:
         if verbose == True:
             print('Merged')
-        num = np.random.ranint(10)
-        fi = np.loadtxt(path+'/stream_data/merged/streams_%d_d%.2d.txt'%(size,num))
+        ind = np.random.randint(0, wn.shape[0])
+        sample = wn[ind]
+        status = 0
     else:
         if verbose == True:
-            print('Isolated')
-        num = np.random.ranint(10)
-        fi = np.loadtxt(path+'/stream_data/iso/streams_%d_d%.2d.txt'%(size,num))
+            print('Isolated') 
+        ind = np.random.randint(0, nl.shape[0])
+        sample = nl[ind]
+        status = 1
+    return sample,status
 
-    streamM,_ = post.filter_streamM(fi,verbose=False)
-    mass_sample = np.random.choice(streamM)
-    return mass_sample
-
-
-def saturate_DM(size,max_iter=int(np.ceil(1e6))):
+def get_DM_mass(wn,nl,void=0.075,inputsize=1000000):
+    '''
+    sample has: 
+        MC/Stream,v_in,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,x,y,z
+        
+    Returns the samples
+    '''
     totmass = 0
-    totsize = int(10**size)
-    malist = []
-    for i in range(max_iter):
-        ma = draw_Slocal(size)
-        malist.append(ma)
-        totmass += ma
-        if i > totsize-1:
-            print("Reached sample size!")
-            break
-        if totmass > 1e-11:
+    size = int(0.7*nl.shape[0])
+    slist = []
+    loop_size = np.minimum(size,inputsize)
+    print("Loop size: %d"%loop_size)
+    for i in range(loop_size):
+        sample,status = post.draw_sample(wn,nl)
+        slist.append(sample)
+        # Column number 3 is Mloc_stream, column 5 is remaining MC mass
+        mass = sample[3] + sample[5]
+        totmass += mass
+        if totmass > 4.1e-11*(1-void):
             print("Saturated the DM total mass with %d streams"%i)
             break
-    return np.array(malist),totmass
+    return np.array(slist)
+
