@@ -106,7 +106,7 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=1000000):
     loop_size = np.minimum(size,inputsize)
     print("Loop size: %d"%loop_size)
     for i in range(loop_size):
-        sample,status = post.draw_sample(wn,nl)
+        sample,status = draw_sample(wn,nl)
         slist.append(sample)
         # Column number 3 is Mloc_stream, column 5 is remaining MC mass
         mass = sample[3] + sample[5]
