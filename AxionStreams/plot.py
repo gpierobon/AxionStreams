@@ -185,3 +185,18 @@ def plot_single_orbit_time(orbit,i,azim=0,save=False,sun=True,disk=True,points=F
         fig.savefig('3D/fig_%.3d'%i,bbox_inches='tight')
     else:
         plt.show() 
+
+def single_plot(xlab='',ylab='',\
+                 lw=1.5,lfs=25,tfs=18,size_x=13,size_y=8,Grid=False):
+    plt.rcParams['axes.linewidth'] = lw
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif',size=tfs)
+
+    fig = plt.figure(figsize=(size_x,size_y))
+    ax = fig.add_subplot(111)
+    ax.set_xlabel(xlab,fontsize=lfs)
+    ax.set_ylabel(ylab,fontsize=lfs)
+    ax.tick_params(which='major',direction='in',width=0.8,length=8,right=True,top=True,pad=7)
+    ax.tick_params(which='minor',direction='in',width=0.5,length=5,right=True,top=True)
+    if Grid: ax.grid()
+    return fig,ax
