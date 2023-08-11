@@ -259,16 +259,14 @@ class Stream():
         
         for i in range(self.N_encounters):
             # Exclude i = -1, which is the last encounter
-            if self.t_enc_ind[i] in [-3,-2,-1]:
+            if ts[self.t_enc_ind[i]] == ts[-1]:
                 continue
-            mloc += self.MassLoss[i]*dL/(self.Vdisp[i]*(ts[-1]-ts[self.t_enc_ind[i]]))
+            mloc += self.MassLoss[i]/(self.Vdisp[i]*(ts[-1]-ts[self.t_enc_ind[i]]))
         
         # Convert to Msun and add remaining MC mass
         phys_conv = 3.0857e16/3.1557e16 
-        self.Slocal = mloc*phys_conv
+        self.Slocal = mloc*phys_conv*dL
         self.Mlocal = self.Slocal + Mremain
-        
-        self.Mlocal2 = mloc*phys_conv
         if debug == True:
             print(self.IMass,self.Mass,self.Mlocal,self.Slocal)
 
