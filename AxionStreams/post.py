@@ -58,12 +58,12 @@ def final_samples(size,isomer,localsize=1e-9):
     path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     if isomer == 0:
         f_pattern = path+"/stream_data/merged/streams_%.1d_d*.txt"%size
-        ofile = path+'/stream_data/WN.txt'%size
-        off = '/stream_data/WN.txt'%size
+        ofile = path+'/stream_data/WN.txt'
+        off = '/stream_data/WN.txt'
     else:
         f_pattern = path+"/stream_data/iso/streams_%.1d_d*.txt"%size
-        ofile = path+'/stream_data/NL.txt'%size
-        off = '/stream_data/NL.txt'%size
+        ofile = path+'/stream_data/NL.txt'
+        off = '/stream_data/NL.txt'
 
     files = glob.glob(f_pattern)
     fsamples = np.empty((0, 14))
@@ -73,7 +73,7 @@ def final_samples(size,isomer,localsize=1e-9):
         nfile  = filter_array(nfile,3)
         fsamples = np.vstack((fsamples, nfile))
     header = "# MC/Stream,v_in,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,x,y,z"
-    np.savetxt(ofile, fsamples, header=header,delimiter=',')
+    np.savetxt(ofile, fsamples, header=header,delimiter=',',fmt='%.3e')
     print("Output %s has %d samples "%(off,len(fsamples[:,0])))
     
 
@@ -93,7 +93,7 @@ def draw_sample(wn,nl,prob=0.7,verbose=False):
         status = 1
     return sample,status
 
-def get_DM_mass(wn,nl,void=0.075,inputsize=1000000):
+def get_DM_mass(wn,nl,void=0.075,inputsize=1000000,verbose=False):
     '''
     sample has: 
         MC/Stream,v_in,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,x,y,z
@@ -101,18 +101,23 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=1000000):
     Returns the samples
     '''
     totmass = 0
+    merg_count = 0
     size = int(0.7*nl.shape[0])
     slist = []
     loop_size = np.minimum(size,inputsize)
-    print("Loop size: %d"%loop_size)
+    if verbose == True:
+        print("Loop size: %d"%loop_size)
     for i in range(loop_size):
         sample,status = draw_sample(wn,nl)
+        if status == 0:
+            merg_count += 1
         slist.append(sample)
         # Column number 3 is Mloc_stream, column 5 is remaining MC mass
         mass = sample[3] + sample[5]
         totmass += mass
         if totmass > 4.1e-11*(1-void):
-            print("Saturated the DM total mass with %d streams"%i)
+            if verbose == True:
+                print("Saturated the DM total mass with %d streams"%i)
             break
-    return np.array(slist)
+    return np.array(slist),merg_count
 

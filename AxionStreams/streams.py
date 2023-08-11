@@ -280,7 +280,7 @@ class Stream():
             pass
         else:
             with open(fileout,'a') as f:
-                f.write("%g %g %g %g %g %g %g %g %g %g %g\n"%(self.isstream,self.vin,\
+                f.write("%d %.3e %.3e %.3e %.3e %.3e %.3e %.3e %.3e %.3e %.3e\n"%(self.isstream,self.vin,\
                         self.Vdisp[-1],self.Slocal,self.IMass,self.Mass,self.IRad,\
                         self.Rad,self.vx[-1],self.vy[-1],self.vz[-1]))
 
