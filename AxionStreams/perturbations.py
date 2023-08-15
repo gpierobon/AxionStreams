@@ -11,8 +11,7 @@ class Perturb:
 
     def load_perturb_data(self):
         # FIX
-        #dE, dM, fej, fub = np.loadtxt(path+"/Galpy/perturb_data/Perturbations_%s.txt"%self.profile, unpack=True)
-        dE, dM, fej, fub = np.loadtxt("/Users/z5278074/Desktop/Galpy/perturb_data/Perturbations_%s.txt"%self.profile, unpack=True)
+        dE, dM, fej, fub = np.loadtxt(path+"/Galpy/perturb_data/Perturbations_%s.txt"%self.profile, unpack=True)
         self.dE = dE
         self.dM = dM
         self.fej = fej
