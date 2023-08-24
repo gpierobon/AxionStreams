@@ -75,5 +75,39 @@ def get_radius_Kavanagh(mass):
 def get_rho_mer(mass,rad):
     return 3*mass/(4*np.pi*rad**3)
 
+def GaussianStream(stream,ts,nvals=100,uniform=False):
+    s2Gyr = 1/((365*24*3600)*1e9)
+    km2kpc = 3.24078e-17
+    tenc = ts[stream.t_enc_ind].flatten()
+    if tenc[-1] == ts[-1]:
+        tenc = tenc[:-1]
+    nenc = len(tenc)
+    
+    sig = stream.Vdisp.flatten()[:nenc]
+    Mloss = stream.MassLoss[:nenc]
+    
+    lstr = (sig*km2kpc/s2Gyr)*(ts[-1]-tenc)
+    dMdl = Mloss/lstr
 
+    lvals = np.linspace(-np.amax(lstr)*np.sqrt(2),np.amax(lstr)*np.sqrt(2),nvals)
+
+    nenc = len(tenc.flatten())
+    dMtot = np.zeros((nvals))
+    for i in range(0,nenc):
+        if uniform == True:
+            if dMdl[i]*lstr[i]>0:
+                dMtot += dMdl[i]
+        else:
+            if dMdl[i]*lstr[i]>0:
+                dM1 = np.exp(-(lvals**2)/(2*(lstr[i]/2)**2))
+                if sum(dM1)>0:
+                    dM1 = dMdl[i]*dM1/np.trapz(dM1,lvals)
+                    dMtot += dM1
+    dMtot = sum(Mloss)/np.trapz(dMtot,lvals)*dMtot
+    vstr = np.sqrt(stream.vx[-1]**2 + stream.vy[-1]**2 + stream.vz[-1]**2)
+    Tvals = lvals/(vstr*km2kpc/s2Gyr)
+    if uniform == True:
+        return np.max(lvals),np.max(Tvals),dMtot[0]/1e6
+    else:
+        return lvals,Tvals,dMtot/1e6
 
