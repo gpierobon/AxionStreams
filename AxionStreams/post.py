@@ -52,31 +52,30 @@ def add_random_coords(file,localsize=1e-9):
     cfile = np.column_stack((file,x,y,z))
     return cfile
 
-def final_samples(size,isomer,localsize=1e-9):
+def final_samples(size,isomer,fout='',localsize=1e-9):
     '''
     '''
     path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     if isomer == 0:
         f_pattern = path+"/stream_data/merged/streams_%.1d_d*.txt"%size
-        ofile = path+'/stream_data/WN.txt'
-        off = '/stream_data/WN.txt'
+        ofile = path+'/stream_data/WN%s.txt'%fout
+        off = '/stream_data/WN%s.txt'%fout
     else:
         f_pattern = path+"/stream_data/iso/streams_%.1d_d*.txt"%size
-        ofile = path+'/stream_data/NL.txt'
-        off = '/stream_data/NL.txt'
+        ofile = path+'/stream_data/NL%s.txt'%fout
+        off = '/stream_data/NL%s.txt'%fout
 
     files = glob.glob(f_pattern)
-    fsamples = np.empty((0, 14))
+    fsamples = np.empty((0, 15))
     for file in files:
         inputf = np.loadtxt(file) 
         nfile = add_random_coords(inputf,localsize=localsize)
-        nfile  = filter_array(nfile,3)
+        nfile  = filter_array(nfile,2)
         fsamples = np.vstack((fsamples, nfile))
-    header = "# MC/Stream,v_in,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,x,y,z"
-    np.savetxt(ofile, fsamples, header=header,delimiter=',',fmt='%.3e')
+    header = "# MC/Stream,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,lmax,lstr,x,y,z"
+    np.savetxt(ofile, fsamples, header=header,delimiter=',',fmt='%d %.2e %.2e %.2e %.2e %.2e %.2e %d %d %d %.2e %.2e %.2e %.2e %.2e')
     print("Output %s has %d samples "%(off,len(fsamples[:,0])))
     
-
 def draw_sample(wn,nl,prob=0.7,verbose=False):
     path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
     if np.random.random() > prob:
@@ -96,28 +95,88 @@ def draw_sample(wn,nl,prob=0.7,verbose=False):
 def get_DM_mass(wn,nl,void=0.075,inputsize=1000000,verbose=False):
     '''
     sample has: 
-        MC/Stream,v_in,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,x,y,z
+        MC/Stream,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,lmax,lstream,x,y,z
         
     Returns the samples
     '''
     totmass = 0
     merg_count = 0
+    mc_count = 0
     size = int(0.7*nl.shape[0])
     slist = []
+    loop_size = np.minimum(size,inputsize)
+
+    if verbose == True:
+        print("Loop size: %d"%loop_size)
+    for i in range(loop_size):
+        sample,status = draw_sample(wn,nl)
+        lmax = sample[10]
+        lstr = sample[11]
+        if status == 0:
+            merg_count += 1
+        slist.append(sample)
+
+        rand_pos = np.random.uniform(0,lmax) 
+        if rand_pos > lstr:
+                mass = 0
+        else:
+            if np.abs(rand_pos) < 1e-6:
+                if verbose == True:
+                    print('Found of a minicluster of mass %.2e'%sample[4])
+                mc_count += 1
+                mass = sample[2]+sample[4]
+            else:
+                mass = sample[2]
+    
+        totmass += mass
+        if totmass > 4.1e-11*(1-void):
+            if verbose == True:
+                print("Saturated the DM total mass with %d streams, of which %d are minclusters"%(i,mc_count))
+            break
+    return np.array(slist),merg_count,mc_count,totmass
+
+def get_DM_mass_2(wn,nl,void=0.075,inputsize=1000000,verbose=False):
+    '''
+    '''
+    totmass = 0
+    iso_count = 0
+    size = int(0.7*nl.shape[0])
+    slist = []
+    cflag = 0
     loop_size = np.minimum(size,inputsize)
     if verbose == True:
         print("Loop size: %d"%loop_size)
     for i in range(loop_size):
         sample,status = draw_sample(wn,nl)
-        if status == 0:
-            merg_count += 1
+        if status == 1:
+            iso_count += 1
         slist.append(sample)
         # Column number 3 is Mloc_stream, column 5 is remaining MC mass
-        mass = sample[3] + sample[5]
+        if cflag == 0:
+            mass = sample[3] + sample[5]
+        else:
+            mass = sample[3]
         totmass += mass
+                    
+        if totmass > 0.7*4.1e-11*(1-void):
+            cflag = 1
+        
         if totmass > 4.1e-11*(1-void):
             if verbose == True:
                 print("Saturated the DM total mass with %d streams"%i)
             break
-    return np.array(slist),merg_count
+    return np.array(slist),iso_count
+
+
+
+
+
+
+
+
+
+
+
+
+
 

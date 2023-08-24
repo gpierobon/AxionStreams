@@ -36,7 +36,8 @@ class Stream():
         self.set_stream_energies()
         self.IEbind = self.Ebind
         self.perturb(saveE=False,debug=False)
-        self.get_local_M(ts,debug=False)
+        #self.get_local_M(ts,debug=False)
+        self.get_Mlocal_uniform(ts)
         self.dump(fout,hdf5=False)
     
     # --------------------------------------------------
@@ -178,7 +179,10 @@ class Stream():
         for i in range(self.N_encounters):
             
             # Fractional energy imparted, with encounter degeneracy
-            dE = self.DelE[i]/self.Ebind*self.enc_deg 
+            if self.Ebind == 0:
+                dE = 1e-5
+            else:
+                dE = self.DelE[i]/self.Ebind*self.enc_deg 
             totEi += self.DelE[i]*self.enc_deg      
             
             # Identify dE max
@@ -235,6 +239,7 @@ class Stream():
             
             # Recompute energies 
             self.set_stream_energies()
+            
             counter += 1
             
         # To Numpy array for the analysis
@@ -249,11 +254,30 @@ class Stream():
         # Example print for first stream
         if debug == True:
             self.print0("For stream %d max dE is %.8f"%(self.ID,dE_max))
+    
+    def get_lmax(self,Tmax=1e-4):
+        '''
+        Tmax in Gyr
+        '''
+        s2Gyr = 1/((365*24*3600)*1e9)
+        km2kpc = 3.24078e-17
+        vstr = np.sqrt(self.vx[-1]**2 + self.vy[-1]**2 + self.vz[-1]**2)
+        lmax = (vstr*km2kpc/s2Gyr)*Tmax/2
+        return lmax
 
+    def get_Mlocal_uniform(self,ts): 
+        '''
+        '''
+        self.lmax = self.get_lmax(Tmax=1e-4)
+        lval,Tval,dMtot = model.GaussianStream(self,ts,nvals=1000,uniform=True)
+        self.Mlocal = dMtot
+        self.lstream = lval
+
+    # This will be removed 
     def get_local_M(self,ts,debug=False):
         '''
         '''
-        dL = 1e-9               # 1 mpc in kpc
+        dL = 1e-6               # 1 mpc in kpc
         mloc = 0.0
         Mremain = self.Mass     
         
@@ -265,10 +289,9 @@ class Stream():
         
         # Convert to Msun and add remaining MC mass
         phys_conv = 3.0857e16/3.1557e16 
-        self.Slocal = mloc*phys_conv*dL
-        self.Mlocal = self.Slocal + Mremain
+        self.Mlocal = mloc*phys_conv*dL
         if debug == True:
-            print(self.IMass,self.Mass,self.Mlocal,self.Slocal)
+            print(self.IMass,self.Mass,self.Mlocal)
 
     def dump(self,fileout,hdf5=False):
         '''
@@ -276,18 +299,18 @@ class Stream():
         and prints what it is saving
         '''
         if hdf5 == True:
-            # Here we can save the all the orbit, perturbation and stream data 
             pass
         else:
             with open(fileout,'a') as f:
-                f.write("%d %.3e %.3e %.3e %.3e %.3e %.3e %.3e %.3e %.3e %.3e\n"%(self.isstream,self.vin,\
-                        self.Vdisp[-1],self.Slocal,self.IMass,self.Mass,self.IRad,\
-                        self.Rad,self.vx[-1],self.vy[-1],self.vz[-1]))
+                f.write("%d %.2e %.2e %.2e %.2e %.2e %.2e %d %d %d %.2e %.2e \n"%(self.isstream,\
+                        self.Vdisp[-1],self.Mlocal,self.IMass,self.Mass,self.IRad,\
+                        self.Rad,self.vx[-1],self.vy[-1],self.vz[-1],self.lmax,self.lstream))
 
         
 def get_ts(fname):  
     with h5.File(fname,'r') as f:
         ts = np.array(f['TimeSeries'])
     return ts
+
 
 
