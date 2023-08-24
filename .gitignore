@@ -21,8 +21,8 @@ orbit_data/Sun/orbits_5_*
 orbit_data/Sun/orbits_6_*
 orbit_data/Sun/old/
 
-stream_datat/WN*.txt
-stream_datat/NL*.txt
+stream_data/WN*.txt
+stream_data/NL*.txt
 stream_data/streams_*
 stream_data/merged_s*/
 stream_data/merged/streams_2*

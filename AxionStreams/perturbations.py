@@ -1,9 +1,10 @@
 import os,sys
 import numpy as np
 
-path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-#path = os.getcwd()
-sys.path.append(path)
+path1 = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+path2 = os.getcwd()
+sys.path.append(path1)
+sys.path.append(path2)
 
 class Perturb:
     def __init__(self,dens_prof):
@@ -11,7 +12,10 @@ class Perturb:
 
     def load_perturb_data(self):
         # FIX
-        dE, dM, fej, fub = np.loadtxt(path+"/Galpy/perturb_data/Perturbations_%s.txt"%self.profile, unpack=True)
+        try:
+            dE, dM, fej, fub = np.loadtxt(path1+"/perturb_data/Perturbations_%s.txt"%self.profile, unpack=True)
+        except:
+            dE, dM, fej, fub = np.loadtxt(path2+"/perturb_data/Perturbations_%s.txt"%self.profile, unpack=True)
         self.dE = dE
         self.dM = dM
         self.fej = fej
