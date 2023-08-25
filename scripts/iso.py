@@ -49,24 +49,18 @@ else:
         display = np.arange(0,N_SAMPLES,np.ceil(N_SAMPLES*0.04))
         if i in display:
             print("Walltime: %g, %d/%d ..."%(time.time()-start,i,N_SAMPLES))
-        streams[i].run(fin,fout,ts)
+        streams[i].run(fin,fout,ISO_MERG,ts)
 
 fo.close()
 
+if INTERACT == 0:
 
-maxN = np.max([stream.N_encounters for stream in streams])
-encount = np.array([stream.N_encounters for stream in streams])
-maxenc = np.max([stream.enc_deg for stream in streams])
+    stream_count = np.array([stream.isstream for stream in streams],dtype=object)
+    Slocal = np.array([stream.Mlocal for stream in streams if stream.Mlocal < 1e-5],dtype=object)
+    maxSLocal = np.max(np.array([stream.Mlocal for stream in streams if stream.Mlocal < 1e-5],dtype=object))
+    meanSLocal = np.mean(np.array([stream.Mlocal for stream in streams if stream.Mlocal < 1e-5],dtype=object))
 
-stream_count = np.array([stream.isstream for stream in streams],dtype=object)
-
-Slocal = np.array([stream.Slocal for stream in streams if stream.Slocal < 1e-5],dtype=object)
-maxSLocal = np.max(np.array([stream.Slocal for stream in streams if stream.Slocal < 1e-5],dtype=object))
-meanSLocal = np.mean(np.array([stream.Slocal for stream in streams if stream.Slocal < 1e-5],dtype=object))
-
-#print('Max number of encounters: %d'%maxN)
-#print('Max encounter deg: %d'%maxenc)
-print("%d/%d Miniclusters are fully disrupted "%(np.sum(stream_count),N_SAMPLES))
-print("Max Stream_loc %g"%maxSLocal)
-print("Mean Stream_loc %g"%meanSLocal)
-print("Sum of Stream_loc %g"%(np.sum(Slocal)))
+    print("%d/%d Miniclusters are fully disrupted "%(np.sum(stream_count),N_SAMPLES))
+    print("Max Stream_loc %g"%maxSLocal)
+    print("Mean Stream_loc %g"%meanSLocal)
+    print("Sum of Stream_loc %g"%(np.sum(Slocal)))
