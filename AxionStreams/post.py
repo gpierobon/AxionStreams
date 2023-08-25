@@ -29,9 +29,9 @@ def average_streamN(streamM,void=0.08):
     streamN = rholocal/np.mean(streamM)
     return streamN
 
-def add_random_coords(file,localsize=1e-9):
+def add_random_coords(file,localsize=1e-6):
     '''
-    Localsize has kpc units, so 1 mpc = 1e-9
+    Localsize has kpc units, so 1 mpc = 1e-6
     '''
     x,y,z = [],[],[]
     for i in range(len(file[:,0])):
@@ -52,7 +52,7 @@ def add_random_coords(file,localsize=1e-9):
     cfile = np.column_stack((file,x,y,z))
     return cfile
 
-def final_samples(size,isomer,fout='',localsize=1e-9):
+def final_samples(size,isomer,fout='',localsize=1e-6):
     '''
     '''
     path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
@@ -92,7 +92,22 @@ def draw_sample(wn,nl,prob=0.7,verbose=False):
         status = 1
     return sample,status
 
-def get_DM_mass(wn,nl,void=0.075,inputsize=1000000,verbose=False):
+def get_initial_DM_mass(wn,nl,void=0.075,verbose=False):
+    merg_count = 0
+    totmass = 0
+    for i in range(1000):
+        sample,status = draw_sample(wn,nl,verbose=verbose)
+        if status == 0:
+            merg_count += 1
+        mass = sample[3]
+        totmass += mass
+        if totmass > 4.1e-11*(1-void):
+            if verbose == True:
+                print("Saturated the DM total mass with %d minclusters (%d are merged)"%(i,merg_count))
+            break
+    return i,merg_count
+
+def get_DM_mass(wn,nl,void=0.075,inputsize=2000000,verbose=False):
     '''
     sample has: 
         MC/Stream,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,lmax,lstream,x,y,z
@@ -101,7 +116,9 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=1000000,verbose=False):
     '''
     totmass = 0
     merg_count = 0
+    stream_count = 0
     mc_count = 0
+    merg_zero = 0
     size = int(0.7*nl.shape[0])
     slist = []
     loop_size = np.minimum(size,inputsize)
@@ -119,21 +136,24 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=1000000,verbose=False):
         rand_pos = np.random.uniform(0,lmax) 
         if rand_pos > lstr:
                 mass = 0
+                if status == 0:
+                    merg_zero +=1 
         else:
             if np.abs(rand_pos) < 1e-6:
-                if verbose == True:
-                    print('Found of a minicluster of mass %.2e'%sample[4])
-                mc_count += 1
+                if sample[4] > 0.0:
+                    if verbose == True:
+                        print('Found of a minicluster of mass %.2e'%sample[4])
+                    mc_count += 1
                 mass = sample[2]+sample[4]
             else:
                 mass = sample[2]
-    
+                stream_count += 1 
         totmass += mass
         if totmass > 4.1e-11*(1-void):
             if verbose == True:
-                print("Saturated the DM total mass with %d streams, of which %d are minclusters"%(i,mc_count))
+                print("Saturated the DM total mass with %d streams, of which %d are minclusters (total entiers : %d)"%(stream_count,mc_count,i))
             break
-    return np.array(slist),merg_count,mc_count,totmass
+    return np.array(slist),merg_count,merg_zero,mc_count,stream_count,i,totmass
 
 def get_DM_mass_2(wn,nl,void=0.075,inputsize=1000000,verbose=False):
     '''
