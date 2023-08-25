@@ -121,6 +121,7 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=2000000,verbose=False):
     merg_zero = 0
     size = int(0.7*nl.shape[0])
     slist = []
+    mlist = []
     loop_size = np.minimum(size,inputsize)
 
     if verbose == True:
@@ -144,16 +145,18 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=2000000,verbose=False):
                     if verbose == True:
                         print('Found of a minicluster of mass %.2e'%sample[4])
                     mc_count += 1
+                    mlist.append(sample)
                 mass = sample[2]+sample[4]
             else:
                 mass = sample[2]
                 stream_count += 1 
+                slist.append(sample)
         totmass += mass
         if totmass > 4.1e-11*(1-void):
             if verbose == True:
                 print("Saturated the DM total mass with %d streams, of which %d are minclusters (total entiers : %d)"%(stream_count,mc_count,i))
             break
-    return np.array(slist),merg_count,merg_zero,mc_count,stream_count,i,totmass
+    return np.array(slist),np.array(mlist),merg_count,merg_zero,mc_count,stream_count,i,totmass
 
 def get_DM_mass_2(wn,nl,void=0.075,inputsize=1000000,verbose=False):
     '''
