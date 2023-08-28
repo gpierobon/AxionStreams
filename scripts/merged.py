@@ -54,13 +54,5 @@ else:
 fo.close()
 
 if INTERACT == 0:
-    
     stream_count = np.array([stream.isstream for stream in streams],dtype=object)
-    Slocal = np.array([stream.Mlocal for stream in streams if stream.Mlocal < 1e-5],dtype=object)
-    maxSLocal = np.max(np.array([stream.Mlocal for stream in streams if stream.Mlocal < 1e-5],dtype=object))
-    meanSLocal = np.mean(np.array([stream.Mlocal for stream in streams if stream.Mlocal < 1e-5],dtype=object))
-
     print("%d/%d Miniclusters are fully disrupted "%(np.sum(stream_count),N_SAMPLES))
-    print("Max Stream_loc %g"%maxSLocal)
-    print("Mean Stream_loc %g"%meanSLocal)
-    print("Sum of Stream_loc %g"%(np.sum(Slocal)))

@@ -5,6 +5,8 @@ movies/
 pictures/
 info/
 
+*.egg-info/
+
 notes.txt
 
 test_plots/
