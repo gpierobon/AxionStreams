@@ -107,7 +107,7 @@ def get_initial_DM_mass(wn,nl,void=0.075,verbose=False):
             break
     return i,merg_count
 
-def get_DM_mass(wn,nl,void=0.075,inputsize=2000000,verbose=False):
+def get_DM_mass(wn,nl,T_adjust=1,void=0.075,inputsize=2000000,verbose=False):
     '''
     sample has: 
         MC/Stream,vel.disp,Mloc_stream,M_i,M_f,R_i,R_f,vx,vy,vz,lmax,lstream,x,y,z
@@ -128,7 +128,7 @@ def get_DM_mass(wn,nl,void=0.075,inputsize=2000000,verbose=False):
         print("Loop size: %d"%loop_size)
     for i in range(loop_size):
         sample,status = draw_sample(wn,nl)
-        lmax = sample[10]
+        lmax = sample[10]*T_adjust
         lstr = sample[11]
         if status == 0:
             merg_count += 1
