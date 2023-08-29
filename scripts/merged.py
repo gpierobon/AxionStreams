@@ -31,25 +31,31 @@ INTERACT  = int(sys.argv[1])
 N_SAMPLES = int(sys.argv[2])
 READ_FILE = int(sys.argv[3])
 ISO_MERG  = 0
+HDF5      = True
 
 fin     = path+'/orbit_data/Sun/orbits_%d_d%02d.hdf5'%(np.log10(N_SAMPLES),READ_FILE)
-fout     = path+'/stream_data/merged/streams_%d_d%02d.txt'%(np.log10(N_SAMPLES),READ_FILE)
+fout     = path+'/stream_data/merged/streams_%d_d%02d'%(np.log10(N_SAMPLES),READ_FILE)
 ts = st.get_ts(fin)
 
 streams = [st.Stream(i) for i in range(N_SAMPLES)]
 
-fo = open(fout,'w')
+if HDF5 == True:
+    fileh = fout+'.hdf5'
+    if os.path.exists(fileh):
+        os.remove(fileh)
+
+fo = open(fout+'.txt','w')
 
 start = time.time()
 if INTERACT == 0:
     for i in tqdm(range(N_SAMPLES)):
-        streams[i].run(fin,fout,ISO_MERG,ts)
+        streams[i].run(fin,fout,ISO_MERG,ts,hdf5=HDF5)
 else:
     for i in range(N_SAMPLES):
         display = np.arange(0,N_SAMPLES,np.ceil(N_SAMPLES*0.04))
         if i in display:
             print("Walltime: %g, %d/%d ..."%(time.time()-start,i,N_SAMPLES))
-        streams[i].run(fin,fout,ISO_MERG,ts)
+        streams[i].run(fin,fout,ISO_MERG,ts,hdf5=HDF5)
 
 fo.close()
 

@@ -91,7 +91,10 @@ def UniformStream(stream,ts,nvals=1000,dL=1e-6):
     Mloss = stream.MassLoss[:nenc]
 
     lstr = (sig*km2kpc/s2Gyr)*(ts[-1]-tenc)
-    lstr = np.average(lstr, weights=Mloss)
+    if np.sum(Mloss) != 0:
+        lstr = np.average(lstr, weights=Mloss)
+    else:
+        lstr = np.mean(lstr)
     dMdl = Mloss/lstr
 
     lvals = np.linspace(-np.amax(lstr)*np.sqrt(2),np.amax(lstr)*np.sqrt(2),nvals)

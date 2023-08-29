@@ -23,7 +23,7 @@ class Stream():
         if self.ID == 0:
             print(message)
 
-    def run(self, fin, fout, isomer, ts):
+    def run(self, fin, fout, isomer, ts, hdf5=False):
         '''
         '''
         self.print0("Reading orbits from %s ... "%fin.split('/')[-1])
@@ -37,7 +37,7 @@ class Stream():
         self.IEbind = self.Ebind
         self.perturb(saveE=False,debug=False)
         self.get_Mlocal(ts)
-        self.dump(fout,hdf5=False)
+        self.dump(fout,hdf5=hdf5)
     
     # --------------------------------------------------
 
@@ -291,19 +291,22 @@ class Stream():
         self.Mlocal = mloc*phys_conv*dL
         if debug == True:
             print(self.IMass,self.Mass,self.Mlocal)
-
+    
     def dump(self,fileout,hdf5=False):
         '''
         This function saves the Class data to file
         and prints what it is saving
         '''
         if hdf5 == True:
-            pass
-        else:
-            with open(fileout,'a') as f:
-                f.write("%d %.2e %.2e %.2e %.2e %.2e %.2e %d %d %d %.2e %.2e \n"%(self.isstream,\
-                        self.Vdisp[-1],self.Mlocal,self.IMass,self.Mass,self.IRad,\
-                        self.Rad,self.vx[-1],self.vy[-1],self.vz[-1],self.lmax,self.lstream))
+            with h5.File(fileout+'.hdf5', 'a') as fh:
+                fg = fh.create_group('Stream_%.5d'%self.ID)
+                fg.create_dataset('tenc_ind',data=self.t_enc_ind,dtype=np.int8)
+                fg.create_dataset('M_loss',data=self.MassLoss,dtype=np.float32)
+        
+        with open(fileout+'.txt','a') as f:
+            f.write("%d %.2e %.2e %.2e %.2e %.2e %.2e %d %d %d %.2e %.2e \n"%(self.isstream,\
+                    self.Vdisp[-1],self.Mlocal,self.IMass,self.Mass,self.IRad,\
+                    self.Rad,self.vx[-1],self.vy[-1],self.vz[-1],self.lmax,self.lstream))
 
         
 def get_ts(fname):  
