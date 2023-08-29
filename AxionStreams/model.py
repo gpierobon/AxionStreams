@@ -75,6 +75,40 @@ def get_radius_Kavanagh(mass):
 def get_rho_mer(mass,rad):
     return 3*mass/(4*np.pi*rad**3)
 
+def UniformStream(stream,ts,nvals=1000,dL=1e-6):
+    '''
+    Returns stream length, its corresponding time and mass loss over dL volume
+    default: dL = 1e-6
+    '''
+    s2Gyr = 1/((365*24*3600)*1e9)
+    km2kpc = 3.24078e-17
+    tenc = ts[stream.t_enc_ind].flatten()
+    if tenc[-1] == ts[-1]:
+        tenc = tenc[:-1]
+    nenc = len(tenc)
+
+    sig = stream.Vdisp.flatten()[:nenc]
+    Mloss = stream.MassLoss[:nenc]
+
+    lstr = (sig*km2kpc/s2Gyr)*(ts[-1]-tenc)
+    lstr = np.average(lstr, weights=Mloss)
+    dMdl = Mloss/lstr
+
+    lvals = np.linspace(-np.amax(lstr)*np.sqrt(2),np.amax(lstr)*np.sqrt(2),nvals)
+
+    nenc = len(tenc.flatten())
+    dMtot = np.zeros((nvals))
+    for i in range(0,nenc):
+        if dMdl[i]*lstr>0:
+                dMtot += dMdl[i]
+    dMtot = np.sum(Mloss)/np.trapz(dMtot,lvals)*dMtot
+    vstr = np.sqrt(stream.vx[-1]**2 + stream.vy[-1]**2 + stream.vz[-1]**2)
+    Tvals = lvals/(vstr*km2kpc/s2Gyr)
+
+    return np.max(lvals),np.max(Tvals),dMtot[0]*dL
+
+
+# Revisit
 def GaussianStream(stream,ts,nvals=100,uniform=False):
     s2Gyr = 1/((365*24*3600)*1e9)
     km2kpc = 3.24078e-17

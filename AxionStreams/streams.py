@@ -36,8 +36,7 @@ class Stream():
         self.set_stream_energies()
         self.IEbind = self.Ebind
         self.perturb(saveE=False,debug=False)
-        #self.get_local_M(ts,debug=False)
-        self.get_Mlocal_uniform(ts)
+        self.get_Mlocal(ts)
         self.dump(fout,hdf5=False)
     
     # --------------------------------------------------
@@ -265,11 +264,11 @@ class Stream():
         lmax = (vstr*km2kpc/s2Gyr)*Tmax/2
         return lmax
 
-    def get_Mlocal_uniform(self,ts): 
+    def get_Mlocal(self,ts): 
         '''
         '''
         self.lmax = self.get_lmax(Tmax=1e-4)
-        lval,Tval,dMtot = model.GaussianStream(self,ts,nvals=1000,uniform=True)
+        lval,Tval,dMtot = model.UniformStream(self,ts,nvals=1000)
         self.Mlocal = dMtot
         self.lstream = lval
 
