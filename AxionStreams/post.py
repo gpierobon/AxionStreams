@@ -158,47 +158,6 @@ def get_DM_mass(wn,nl,T_adjust=1,void=0.075,inputsize=2000000,verbose=False):
             break
     return np.array(slist),np.array(mlist),merg_count,merg_zero,mc_count,stream_count,i,totmass
 
-def get_DM_mass_2(wn,nl,void=0.075,inputsize=1000000,verbose=False):
-    '''
-    '''
-    totmass = 0
-    iso_count = 0
-    size = int(0.7*nl.shape[0])
-    slist = []
-    cflag = 0
-    loop_size = np.minimum(size,inputsize)
-    if verbose == True:
-        print("Loop size: %d"%loop_size)
-    for i in range(loop_size):
-        sample,status = draw_sample(wn,nl)
-        if status == 1:
-            iso_count += 1
-        slist.append(sample)
-        # Column number 3 is Mloc_stream, column 5 is remaining MC mass
-        if cflag == 0:
-            mass = sample[3] + sample[5]
-        else:
-            mass = sample[3]
-        totmass += mass
-                    
-        if totmass > 0.7*4.1e-11*(1-void):
-            cflag = 1
-        
-        if totmass > 4.1e-11*(1-void):
-            if verbose == True:
-                print("Saturated the DM total mass with %d streams"%i)
-            break
-    return np.array(slist),iso_count
-
-
-
-
-
-
-
-
-
-
 
 
 

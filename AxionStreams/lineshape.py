@@ -52,14 +52,28 @@ def SpeedDist_Isotropic(v,day,v_LSR=233.0,sig=164.75,v_esc=528.0,\
         *(np.exp(-(v**2.0+v_e**2.0-2.0*v*v_e)/(2*sig**2.0))\
         -np.exp(-(v**2.0+v_e**2.0+2.0*v*v_e)/(2*sig**2.0)))\
         *((v)<(v_esc+v_e))
-    fv1 = fv1/np.trapz(fv1,v)
     return fv1
 
+def rho_stream(stream):
+    return stream[2]*1e-3/(np.pi*1e-3*(stream[6])**2) 
 
-def get_A(streams):
-    rhoDM = 0.01
-    return streams[:,2]*1e-3/(np.pi*streams[:,-4]*(streams[:,6])**2)/rhoDM
+def get_Amp(stream,day=67,v_LSR=233.0):
+    '''
+    '''
+    rho_str = rho_stream(stream) 
+    rho_void = 0.01*0.075
+    v_str = np.array([stream[7],stream[8],stream[9]])
+    sig_str = stream[1]
 
+    v_lab = LabVelocitySimple(day,v_LSR=v_LSR)
+    v_off = np.sqrt(sum((v_lab-v_str)**2))
+    flab = SpeedDist_Isotropic(v_off,day=day)
+    fstr = SpeedDist_Isotropic(v_off,day=day,v_shift=v_str,sig=sig_str)
+
+    A_min = 1+(rho_str/rho_void)
+    A_max = 1+(rho_str/rho_void)*(fstr/flab)
+
+    return A_min,A_max
 
 def get_bkg(n=3000):
     c_km = 3e8/1000
