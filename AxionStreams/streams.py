@@ -74,10 +74,8 @@ class Stream():
         if isomer == 0:
             self.Rad = model.get_radius_merged(self.Mass) # defaults to Xiao et al.
             self.rho = model.get_rho_mer(self.Mass,self.Rad)
-
         else:
             self.Rad, self.rho = model.get_rho_radius_iso(isomer,self.Mass)
-        
         self.vin = np.sqrt(self.vx[0]**2+self.vy[0]**2+self.vz[2]**2)    # km/s
         self.vdisp = (self.kappa*self.G_N*self.Mass/self.Rad)**(1/2)     # km/s
         

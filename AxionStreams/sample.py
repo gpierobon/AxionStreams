@@ -42,37 +42,6 @@ def draw_random_Mass(isomer,ic=1,n_samples=1,nm=1000):
     M_sample = Mvals[ic]
     return M_sample
 
-
-def draw_random_Mass_old(isomer,ic=1):
-    '''
-    '''
-    if isomer == 0: # Isolated
-        # Jaxions
-        if ic == 0:
-            M_min = 1e-15
-            M_max = 1e-10
-            gamma = 0.7
-        # Moore
-        elif ic == 1:
-            M_min = 1e-16
-            M_max = 1e-12
-            gamma = 0.8
-        # Spax
-        elif ic == 2:
-            M_min = 1e-18
-            M_max = 3e-14
-            gamma = 0.68
-    elif isomer == 1: # Merged
-        if ic == 1: 
-            M_min = 1e-12
-            M_max = 1e-6
-            gamma = 0.5
-    norm = 1
-    P_M = lambda M: norm*(M)*(-gamma)
-    mass = inverse_transform_sampling(P_M,M_min,M_max,n_samples=1,logarithmic=True)
-    return mass
-
-
 def sample_mc_density(ic):
     '''
     Input from N-body simulations
